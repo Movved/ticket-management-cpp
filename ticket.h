@@ -1,0 +1,8 @@
+class ticket{
+public :
+
+
+private:
+
+
+};
