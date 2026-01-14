@@ -24,6 +24,7 @@ ticket::~ticket()
 }
 void ticket::setStatut(const char* nvStatut)
 {
+    delete [] statut;
     statut = new char[(strlen(nvStatut)+1)];
     strcpy(statut,nvStatut);
 }
