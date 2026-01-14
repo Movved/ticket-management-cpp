@@ -3,8 +3,10 @@
 #include <cstring>
 #include <string>
 #include <iomanip>
+#include "ui.h"
 
 using namespace std;
+
 
 DBManager::DBManager(const char* host, const char* user, const char* password, const char* database)
 {
@@ -19,7 +21,6 @@ DBManager::DBManager(const char* host, const char* user, const char* password, c
 }
 
 
-
 DBManager::~DBManager()
 {
     if (conn) {
@@ -28,29 +29,30 @@ DBManager::~DBManager()
 }
 
 
-
 void DBManager::listTickets() const
 {
     if (!conn) return;
     try {
         sql::Statement* stmt = conn->createStatement();
         sql::ResultSet* res = stmt->executeQuery("SELECT * FROM tickets");
-       cout << "+----+------------------------------+--------+------------+" << endl;
-        cout << "| ID | Titre                        | Statut | Cree Par   |" << endl;
-        cout << "+----+------------------------------+--------+------------+" << endl;
+        cout << BOLD << CYAN ;
+       cout << "+----+------------------------------+-------------+------------+" << endl;
+        cout << "| ID | Titre                        | Statut      | Cree Par   |" << endl;
+        cout << "+----+------------------------------+-------------+------------+" << endl;
+        cout << RESET;        
 
-        
         while (res->next()) {
-            cout << "| "
+            string statut = res->getString("status");
+            cout << colorStatus(statut) << "| "
                  << setw(2) << left << res->getInt("id") << " | "
                  << setw(28) << left << res->getString("title") << " | "
-                 << setw(6) << left << res->getString("status") << " | "
+                 << setw(11) << left << res->getString("status") << " | "
                  << setw(10) << left << res->getString("created_by") << " |"
-                 << endl;
+                 << RESET <<endl;
         }
-
         
-        cout << "+----+------------------------------+--------+------------+" << endl;
+        
+        cout << CYAN <<BOLD<< "+----+------------------------------+-------------+------------+" << RESET <<endl;
         delete res;
         delete stmt;
     } catch (sql::SQLException& e) {
@@ -80,8 +82,10 @@ void DBManager::addTicket(const char* t, const char* d, const char* s, const cha
         strcat(query, "')");
 
         sql::Statement* stmt = conn->createStatement();
-        stmt->execute(query);
-        cout <<"Votre ticket est ajoute avec succes!"<<endl;
+        if(stmt->executeUpdate(query))
+            cout <<GREEN<<"Votre ticket est ajoute avec succes!"<<RESET<<endl;
+         else cout<< RED << "Un Problem Lors d'ajout est Survenue! "  << RESET<<endl;
+
         delete stmt;
 
     }catch(sql::SQLException& e){
@@ -100,12 +104,12 @@ void DBManager::updateTicketStatus(const int& id, const char* s)
         query += s;
         query += "' WHERE id=";
         query += std::to_string(id);
-
+        
         sql::Statement* stmt = conn->createStatement();
-        int affected = stmt->executeUpdate(query);
-        if(affected > 0)
-        cout <<"Votre ticket est mettre a jour avec succes!"<<endl;
-        else cout << "Aucun ticket trouvé avec l'ID " << id << endl;
+        
+        if(stmt->executeUpdate(query) > 0)
+            cout <<GREEN<<"Votre ticket est mettre a jour avec succes!"<<RESET<<endl;
+        else cout<< RED << "Aucun ticket trouvé avec l'ID " << id << RESET<<endl;
 
         delete stmt;
     }catch(sql::SQLException& e){
@@ -124,8 +128,8 @@ void DBManager::deleteTicket(const int& id)
 
         sql::Statement* stmt = conn->createStatement();
         if(stmt->executeUpdate(query) > 0)
-        cout <<"Votre ticket est supprime avec succes!"<<endl;
-        else cout << "Aucun ticket trouvé avec l'ID " << id << endl;
+        cout <<GREEN<<"Votre ticket est supprime avec succes!"<<RESET<<endl;
+        else cout<< RED << "Aucun ticket trouvé avec l'ID " << id << RESET<<endl;
         delete stmt;
 
     }catch(sql::SQLException& e){
@@ -138,7 +142,6 @@ void DBManager::voirDetail(const int& id) const {
 
     try {
         sql::Statement* stmt = conn->createStatement();
-
         
         string query = "SELECT * FROM tickets WHERE id=" + to_string(id);
         sql::ResultSet* res = stmt->executeQuery(query);
@@ -152,7 +155,7 @@ void DBManager::voirDetail(const int& id) const {
             cout << "Cree Par: " << res->getString("created_by") << endl;
             cout << "-------------------------\n";
         } else {
-            cout << "Aucun ticket trouvé avec l'ID " << id << endl;
+            cout << RED << "Aucun ticket trouvé avec l'ID " << id << RESET <<  endl;
         }
 
         delete res;

@@ -1,17 +1,24 @@
 #include <iostream>
 #include "db_manager.h"
+#include "ui.h"
 
 using namespace std;
 
+
 int main() {
+
     DBManager db("localhost", "root", "", "ticket_system");
 
+    
+    showWelcome();
     int choix;
+    
 
     do {
-        cout << endl <<"============================="<<endl;
-        cout << "      Ticket Management      "<<endl;
-        cout << "============================="<<endl;
+        
+        cout << endl <<"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"<<endl;
+        cout << "         Ticket Menu      "<<endl;
+        cout << "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"<<endl;
         cout << "1. Ajouter  Ticket"<<endl;
         cout << "2. Voir Les Tickets"<<endl;
         cout << "3. Mettre a jour Status d'un Ticket"<<endl;
@@ -26,14 +33,14 @@ int main() {
             char title[100], description[500], status[20], created_by[50];
             cout << "Entrer Titre: "; cin.getline(title, 100);
             cout << "Entrer Description: "; cin.getline(description, 500);
-            cout << "Entrer Status (open/closed): "; cin.getline(status, 20);
+            cout << "Entrer Status (open/in_progress/closed): "; cin.getline(status, 20);
             cout << "Creer Par : "; cin.getline(created_by, 50);
             
             ticket t(title, description, status, created_by);
             db.addTicket(t);
 
         }else if (choix == 2){
-            cout << "--- Liste des Tickets ---"<<endl;
+
             db.listTickets();
 
         }else if (choix == 3){

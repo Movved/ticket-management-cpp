@@ -25,9 +25,12 @@ yay -S mysql-connector-c++
 
 
 ```
-g++ *.cpp -Iinclude -lmysqlcppconn -o main
+g++ -std=c++14 *.cpp -Iinclude -lmysqlcppconn -o main 
 ```
-
+## Compilation
+```
+./main
+```
 ---
 
 ## Notes
