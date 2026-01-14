@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cstring>
 #include <string>
+#include <iomanip>
 
 using namespace std;
 
@@ -34,14 +35,22 @@ void DBManager::listTickets() const
     try {
         sql::Statement* stmt = conn->createStatement();
         sql::ResultSet* res = stmt->executeQuery("SELECT * FROM tickets");
+       cout << "+----+------------------------------+--------+------------+" << endl;
+        cout << "| ID | Titre                        | Statut | Cree Par   |" << endl;
+        cout << "+----+------------------------------+--------+------------+" << endl;
+
+        
         while (res->next()) {
-            cout << "ID: " << res->getInt("id")
-                 << ", Title: " << res->getString("title")
-                 << ", Description: " << res->getString("description")
-                 << ", Status: " << res->getString("status")
-                 << ", Created by: " << res->getString("created_by")
+            cout << "| "
+                 << setw(2) << left << res->getInt("id") << " | "
+                 << setw(28) << left << res->getString("title") << " | "
+                 << setw(6) << left << res->getString("status") << " | "
+                 << setw(10) << left << res->getString("created_by") << " |"
                  << endl;
         }
+
+        
+        cout << "+----+------------------------------+--------+------------+" << endl;
         delete res;
         delete stmt;
     } catch (sql::SQLException& e) {
@@ -87,16 +96,18 @@ void DBManager::updateTicketStatus(const int& id, const char* s)
     if (!conn) return;
 
     try {
-        char query[1024];
-        strcpy(query, "UPDATE tickets SET status = '");
-        strcat(query, s);
-        strcat(query, "'");
+        std::string query = "UPDATE tickets SET status = '";
+        query += s;
+        query += "' WHERE id=";
+        query += std::to_string(id);
 
         sql::Statement* stmt = conn->createStatement();
-        stmt->execute(query);
+        int affected = stmt->executeUpdate(query);
+        if(affected > 0)
         cout <<"Votre ticket est mettre a jour avec succes!"<<endl;
-        delete stmt;
+        else cout << "Aucun ticket trouvé avec l'ID " << id << endl;
 
+        delete stmt;
     }catch(sql::SQLException& e){
         cout << "update ticket error: " << e.what() << endl;
     }
@@ -112,12 +123,42 @@ void DBManager::deleteTicket(const int& id)
         query+="'";
 
         sql::Statement* stmt = conn->createStatement();
-        stmt->execute(query);
+        if(stmt->executeUpdate(query) > 0)
         cout <<"Votre ticket est supprime avec succes!"<<endl;
+        else cout << "Aucun ticket trouvé avec l'ID " << id << endl;
         delete stmt;
 
     }catch(sql::SQLException& e){
-        cout << "update ticket error: " << e.what() << endl;
+        cout << "suppression ticket error: " << e.what() << endl;
     }
 }
 
+void DBManager::voirDetail(const int& id) const {
+    if (!conn) return;
+
+    try {
+        sql::Statement* stmt = conn->createStatement();
+
+        
+        string query = "SELECT * FROM tickets WHERE id=" + to_string(id);
+        sql::ResultSet* res = stmt->executeQuery(query);
+
+        if (res->next()){
+            cout << "\n--- Détails du ticket ---\n";
+            cout << "ID        : " << res->getInt("id") << endl;
+            cout << "Titre     : " << res->getString("title") << endl;
+            cout << "Description: " << res->getString("description") << endl;
+            cout << "Statut    : " << res->getString("status") << endl;
+            cout << "Cree Par: " << res->getString("created_by") << endl;
+            cout << "-------------------------\n";
+        } else {
+            cout << "Aucun ticket trouvé avec l'ID " << id << endl;
+        }
+
+        delete res;
+        delete stmt;
+
+    } catch (sql::SQLException& e) {
+        cout << "Erreur lors de la récupération du ticket: " << e.what() << endl;
+    }
+}

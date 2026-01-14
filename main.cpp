@@ -16,6 +16,7 @@ int main() {
         cout << "2. Voir Les Tickets"<<endl;
         cout << "3. Mettre a jour Status d'un Ticket"<<endl;
         cout << "4. Supprumer Ticket"<<endl;
+        cout << "5. Voir Detail de Ticket"<<endl;
         cout << "0. Quitter"<<endl;
         cout << "Entrer votre choix: ";
         cin >> choix;
@@ -47,6 +48,13 @@ int main() {
             int id;
             cout << "Enter Ticket ID to delete: "; cin >> id; cin.ignore();
             db.deleteTicket(id);
+
+        }else if (choix == 5){
+            int id;
+            
+            cout << "Entrer ID de ticket : "; cin >> id; cin.ignore();
+            db.voirDetail(id);
+
         }else if (choix == 0){
             cout << "Quittons le programme. Bye!"<<endl;
         }else{

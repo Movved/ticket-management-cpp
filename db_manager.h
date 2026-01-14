@@ -17,8 +17,8 @@ public:
 
     void addTicket(const ticket& t);
     void addTicket(const char* title, const char* description, const char* status, const char* created_by);
-
      void listTickets() const;
+     void voirDetail(const int& id) const;
      void updateTicketStatus(const int& id, const char* status);
      void deleteTicket(const int& id);
 };
